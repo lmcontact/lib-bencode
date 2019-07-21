@@ -4,7 +4,9 @@
  * to it's bencoded form, if it's possible.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-/** Class representing an encoding error. */
+/** Class representing an encoding error.
+ * @extends Error
+ */
 class EncodeError extends Error {
     /**
      * Create an EncodeError object.
