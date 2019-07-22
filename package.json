@@ -10,9 +10,7 @@
     "ts-jest": "^24.0.2",
     "typescript": "^3.5.3"
   },
-  "dependencies": {
-    "big.js": "^5.2.2"
-  },
+  "dependencies": {},
   "scripts": {
     "test": "jest --coverage"
   }

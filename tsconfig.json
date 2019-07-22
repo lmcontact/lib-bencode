@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es5",
+    "target": "es6",
     "sourceMap": true,
     "strict": true,
     "noImplicitAny": true,
     "noUnusedParameters": true,
-    "noUnusedLocals": true
+    "noUnusedLocals": true,
+    "allowJs": true
   },
   "compileOnSave": true,
   "exclude": [
