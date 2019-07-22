@@ -1,4 +1,4 @@
 import { encode } from "./encode";
 import { decode } from "./decode";
 
-export { encode, decode };
+export const Bencode = { encode, decode };
