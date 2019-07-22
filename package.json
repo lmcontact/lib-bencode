@@ -1,4 +1,8 @@
 {
+  "name": "bencode",
+  "version": "1.0.0",
+  "description": "package to encode/decode bencoded string",
+  "private": true,
   "devDependencies": {
     "@babel/parser": "^7.5.5",
     "@babel/types": "^7.5.5",
