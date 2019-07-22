@@ -42,7 +42,7 @@ function encodeString(str: string): string {
 
 /**
  * Return a bencoded int given a javascript BigInt.
- * @param {BigInt} n - The javascript BigInt.
+ * @param {BigInteger} n - The javascript BigInt.
  * @return {string} The bencoded int.
  */
 function encodeInt(n: BigInt): string {

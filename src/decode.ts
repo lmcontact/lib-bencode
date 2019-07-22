@@ -182,6 +182,11 @@ function decodeDict(index: number, data: string): [number, any] {
   return [index + 1, result];
 }
 
+/**
+ * Return the decoded bencoded data string converted into javascript object.
+ * @param {string} data - The bencoded data.
+ * @return {*} The javascript object obtained by decoding the data.
+ */
 function decode(data: string): any {
   const result: any[] = [];
   let index = 0;

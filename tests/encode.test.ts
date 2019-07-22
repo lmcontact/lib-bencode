@@ -11,8 +11,8 @@ import {
 describe("getType", () => {
   const validTests = [
     { value: "test", type: "string" },
-    { value: 4234n, type: "bigint" },
-    { value: [1n, 2n, 3n], type: "list" },
+    { value: BigInt(4234), type: "bigint" },
+    { value: [BigInt(1), BigInt(2), BigInt(3)], type: "list" },
     { value: { a: 1, b: 2 }, type: "dict" },
     { value: 123, type: "number" },
     { value: true, type: "boolean" },
@@ -63,11 +63,11 @@ describe("encodeString", () => {
 
 describe("encodeInt", () => {
   const validTests = [
-    1n,
-    0n,
-    131123n,
-    1312312323123n,
-    371238127398127381927398127391273n
+    BigInt(1),
+    BigInt(0),
+    BigInt(131123),
+    BigInt(1312312323123),
+    BigInt(371238127398127381927398127391273)
   ].map(elt => ({ value: elt, encoded: encodeInt(elt) }));
 
   it.each(validTests)("ressult should have 'i' as first character", elt => {
@@ -93,12 +93,12 @@ describe("encodeList", () => {
   const validTests = [
     { value: [], encoded: "le" },
     { value: ["1", "2", "3"], encoded: "l1:11:21:3e" },
-    { value: [1n, 2n, 3n], encoded: "li1ei2ei3ee" },
-    { value: [1n, "test", 4n], encoded: "li1e4:testi4ee" },
-    { value: [1n, [2n, 3n]], encoded: "li1eli2ei3eee" },
-    { value: [1n, ["2", "3"]], encoded: "li1el1:21:3ee" },
+    { value: [BigInt(1), BigInt(2), BigInt(3)], encoded: "li1ei2ei3ee" },
+    { value: [BigInt(1), "test", BigInt(4)], encoded: "li1e4:testi4ee" },
+    { value: [BigInt(1), [BigInt(2), BigInt(3)]], encoded: "li1eli2ei3eee" },
+    { value: [BigInt(1), ["2", "3"]], encoded: "li1el1:21:3ee" },
     {
-      value: [1n, { a: "1", b: "2" }, { c: "3" }],
+      value: [BigInt(1), { a: "1", b: "2" }, { c: "3" }],
       encoded: "li1ed1:a1:11:b1:2ed1:c1:3ee"
     }
   ];
@@ -141,15 +141,15 @@ describe("encodeList", () => {
 describe("encodeDict", () => {
   const validTests = [
     { value: {}, encoded: "de" },
-    { value: { a: 1n, b: 2n }, encoded: "d1:ai1e1:bi2ee" },
-    { value: { a: "test", b: 3n }, encoded: "d1:a4:test1:bi3ee" },
+    { value: { a: BigInt(1), b: BigInt(2) }, encoded: "d1:ai1e1:bi2ee" },
+    { value: { a: "test", b: BigInt(3) }, encoded: "d1:a4:test1:bi3ee" },
     {
-      value: { a: { b: 1n, c: "2" }, d: "3" },
+      value: { a: { b: BigInt(1), c: "2" }, d: "3" },
       encoded: "d1:ad1:bi1e1:c1:2e1:d1:3e"
     },
-    { value: { a: [1n, "2"], b: "3" }, encoded: "d1:ali1e1:2e1:b1:3e" },
+    { value: { a: [BigInt(1), "2"], b: "3" }, encoded: "d1:ali1e1:2e1:b1:3e" },
     {
-      value: { a: [{ b: 1n }, { c: "2" }], d: { e: 3n, f: "4" } },
+      value: { a: [{ b: BigInt(1) }, { c: "2" }], d: { e: BigInt(3), f: "4" } },
       encoded: "d1:ald1:bi1eed1:c1:2ee1:dd1:ei3e1:f1:4ee"
     }
   ];
@@ -191,10 +191,13 @@ describe("encodeDict", () => {
 
 describe("encode", () => {
   const validTests = [
-    { value: 1n, encoded: "i1e" },
+    { value: BigInt(1), encoded: "i1e" },
     { value: "test", encoded: "4:test" },
-    { value: [1n, 2n, 3n, "test"], encoded: "li1ei2ei3e4:teste" },
-    { value: { a: 1n, b: "2" }, encoded: "d1:ai1e1:b1:2e" }
+    {
+      value: [BigInt(1), BigInt(2), BigInt(3), "test"],
+      encoded: "li1ei2ei3e4:teste"
+    },
+    { value: { a: BigInt(1), b: "2" }, encoded: "d1:ai1e1:b1:2e" }
   ];
 
   it.each(validTests)("should returns the exact encoded value", elt => {

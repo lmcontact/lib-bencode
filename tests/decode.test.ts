@@ -11,21 +11,31 @@ import {
 
 describe("decodeInt", () => {
   const validTests = [
-    { value: "asai1231edafds", decoded: 1231n, startIndex: 3, endIndex: 9 },
-    { value: "eqwei0easdas", decoded: 0n, startIndex: 4, endIndex: 7 },
+    {
+      value: "asai1231edafds",
+      decoded: BigInt(1231),
+      startIndex: 3,
+      endIndex: 9
+    },
+    { value: "eqwei0easdas", decoded: BigInt(0), startIndex: 4, endIndex: 7 },
     {
       value: "eqwei3123123123123124edasd",
-      decoded: 3123123123123124n,
+      decoded: BigInt(3123123123123124),
       startIndex: 4,
       endIndex: 22
     },
     {
       value: "fdssfi-4123423edas",
-      decoded: -4123423n,
+      decoded: BigInt(-4123423),
       startIndex: 5,
       endIndex: 15
     },
-    { value: "dai-3213e12312", decoded: -3213n, startIndex: 2, endIndex: 9 }
+    {
+      value: "dai-3213e12312",
+      decoded: BigInt(-3213),
+      startIndex: 2,
+      endIndex: 9
+    }
   ];
 
   it.each(validTests)("result should contains the bigint number", elt => {
@@ -102,7 +112,7 @@ describe("decodeList", () => {
     },
     {
       value: "dadadli54ei412ei3123eefsdfsf",
-      decoded: [54n, 412n, 3123n],
+      decoded: [BigInt(54), BigInt(412), BigInt(3123)],
       startIndex: 5,
       endIndex: 22
     },
@@ -114,19 +124,19 @@ describe("decodeList", () => {
     },
     {
       value: "dadasdli11232e5:test1i4234eedasd",
-      decoded: [11232n, "test1", 4234n],
+      decoded: [BigInt(11232), "test1", BigInt(4234)],
       startIndex: 6,
       endIndex: 28
     },
     {
       value: "dali312el4:testi7657ee6:foobaredasd",
-      decoded: [312n, ["test", 7657n], "foobar"],
+      decoded: [BigInt(312), ["test", BigInt(7657)], "foobar"],
       startIndex: 2,
       endIndex: 31
     },
     {
       value: "dasld1:ai543eei3123e4:testedsad",
-      decoded: [{ a: 543n }, 3123n, "test"],
+      decoded: [{ a: BigInt(543) }, BigInt(3123), "test"],
       startIndex: 3,
       endIndex: 27
     }
@@ -174,25 +184,25 @@ describe("decodeDict", () => {
     },
     {
       value: "azd1:bi423eead",
-      decoded: { b: 423n },
+      decoded: { b: BigInt(423) },
       startIndex: 2,
       endIndex: 12
     },
     {
       value: "adadd1:ai41231e1:b4:testezxc",
-      decoded: { a: 41231n, b: "test" },
+      decoded: { a: BigInt(41231), b: "test" },
       startIndex: 4,
       endIndex: 25
     },
     {
       value: "pld1:ai964e1:bl3:foo3:bare1:c4:testekhjk",
-      decoded: { a: 964n, b: ["foo", "bar"], c: "test" },
+      decoded: { a: BigInt(964), b: ["foo", "bar"], c: "test" },
       startIndex: 2,
       endIndex: 36
     },
     {
       value: "vfdvd1:a3:foo1:bd1:ci8423e1:d4:teste1:ei6345eeasd",
-      decoded: { a: "foo", b: { c: 8423n, d: "test" }, e: 6345n },
+      decoded: { a: "foo", b: { c: BigInt(8423), d: "test" }, e: BigInt(6345) },
       startIndex: 4,
       endIndex: 46
     }
@@ -232,17 +242,17 @@ describe("decodeDict", () => {
 describe("decode", () => {
   const validTests = [
     { value: "", decoded: null },
-    { value: "i312331e", decoded: 312331n },
+    { value: "i312331e", decoded: BigInt(312331) },
     { value: "4:test", decoded: "test" },
-    { value: "l3:foo3:bari5235ee", decoded: ["foo", "bar", 5235n] },
-    { value: "d1:a3:baz1:bi366ee", decoded: { a: "baz", b: 366n } },
+    { value: "l3:foo3:bari5235ee", decoded: ["foo", "bar", BigInt(5235)] },
+    { value: "d1:a3:baz1:bi366ee", decoded: { a: "baz", b: BigInt(366) } },
     {
       value: "l4:testd1:ai3123e1:b3:fooei2563ee",
-      decoded: ["test", { a: 3123n, b: "foo" }, 2563n]
+      decoded: ["test", { a: BigInt(3123), b: "foo" }, BigInt(2563)]
     },
     {
       value: "d1:ai5345e1:bl3:foo3:bare1:c4:teste",
-      decoded: { a: 5345n, b: ["foo", "bar"], c: "test" }
+      decoded: { a: BigInt(5345), b: ["foo", "bar"], c: "test" }
     },
     {
       value: "4:test3:foo",
@@ -250,7 +260,7 @@ describe("decode", () => {
     },
     {
       value: "4:testi4234e",
-      decoded: ["test", 4234n]
+      decoded: ["test", BigInt(4234)]
     }
   ];
 
