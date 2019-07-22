@@ -1,6 +1,6 @@
 /**
  * This file contains all the functions needed to encode a javascript object
- * to it's bencoded form, if it's possible.
+ * to it's bencoded equivalent
  */
 
 /** Class representing an encoding error.
@@ -69,7 +69,7 @@ function encodeList(list: any[]): string {
     } else if (type === "string") {
       result.push(encodeString(elt));
     } else {
-      throw new EncodeError(`bencoded list can't contains ${type}`);
+      throw new EncodeError(`encodeList: wrong type ${type}`);
     }
   });
 
@@ -100,7 +100,7 @@ function encodeDict(dict: any): string {
     } else if (type === "bigint") {
       result.push(encodeInt(dict[k]));
     } else {
-      throw new EncodeError(`bencoded dict can't contains ${type}`);
+      throw new EncodeError(`encodeDict: wrong type ${type}`);
     }
   }
 
@@ -124,7 +124,7 @@ function encode(elt: any): string {
   } else if (type === "string") {
     return encodeString(elt);
   } else {
-    throw new EncodeError(`can't encode element of type ${type}`);
+    throw new EncodeError(`encodeDict: wrong type ${type}`);
   }
 }
 

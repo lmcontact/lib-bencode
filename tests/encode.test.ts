@@ -9,7 +9,7 @@ import {
 } from "../src/encode";
 
 describe("getType", () => {
-  let cases = [
+  const validTests = [
     { value: "test", type: "string" },
     { value: 4234n, type: "bigint" },
     { value: [1n, 2n, 3n], type: "list" },
@@ -20,40 +20,49 @@ describe("getType", () => {
     { value: null, type: "null" }
   ];
 
-  it.each(cases)("result should be the bencoded corresponding type", elt => {
-    expect(getType(elt.value)).toBe(elt.type);
-  });
+  it.each(validTests)(
+    "result should be the bencoded corresponding type",
+    elt => {
+      expect(getType(elt.value)).toBe(elt.type);
+    }
+  );
 });
 
 describe("encodeString", () => {
-  const cases = ["test", "bencoded", "a", "str", "abc:def", ":", ""].map(
+  const validTests = ["test", "bencoded", "a", "str", "abc:def", ":", ""].map(
     elt => ({
       str: elt,
       encoded: encodeString(elt)
     })
   );
 
-  it.each(cases)("result should contains a colon", elt => {
+  it.each(validTests)("result should contains a colon", elt => {
     expect(elt.encoded.indexOf(":")).not.toBe(-1);
   });
 
-  it.each(cases)("result should contains string length before colon", elt => {
-    const indexColon = elt.encoded.indexOf(":");
-    const len = parseInt(elt.encoded.substring(0, indexColon));
+  it.each(validTests)(
+    "result should contains string length before colon",
+    elt => {
+      const indexColon = elt.encoded.indexOf(":");
+      const len = parseInt(elt.encoded.substring(0, indexColon));
 
-    expect(len).toBe(elt.str.length);
-  });
+      expect(len).toBe(elt.str.length);
+    }
+  );
 
-  it.each(cases)("result should contains exact string after colon", elt => {
-    const indexColon = elt.encoded.indexOf(":");
-    const str = elt.encoded.substring(indexColon + 1);
+  it.each(validTests)(
+    "result should contains exact string after colon",
+    elt => {
+      const indexColon = elt.encoded.indexOf(":");
+      const str = elt.encoded.substring(indexColon + 1);
 
-    expect(str).toBe(elt.str);
-  });
+      expect(str).toBe(elt.str);
+    }
+  );
 });
 
 describe("encodeInt", () => {
-  const cases = [
+  const validTests = [
     1n,
     0n,
     131123n,
@@ -61,15 +70,15 @@ describe("encodeInt", () => {
     371238127398127381927398127391273n
   ].map(elt => ({ value: elt, encoded: encodeInt(elt) }));
 
-  it.each(cases)("ressult should have 'i' as first character", elt => {
+  it.each(validTests)("ressult should have 'i' as first character", elt => {
     expect(elt.encoded[0]).toBe("i");
   });
 
-  it.each(cases)("result should have 'e' as last character", elt => {
+  it.each(validTests)("result should have 'e' as last character", elt => {
     expect(elt.encoded[elt.encoded.length - 1]).toBe("e");
   });
 
-  it.each(cases)(
+  it.each(validTests)(
     "result should contains exact bigint between 'i' and 'e'",
     elt => {
       const str = elt.encoded.substring(1, elt.encoded.length - 1);
@@ -81,7 +90,7 @@ describe("encodeInt", () => {
 });
 
 describe("encodeList", () => {
-  const cases1 = [
+  const validTests = [
     { value: [], encoded: "le" },
     { value: ["1", "2", "3"], encoded: "l1:11:21:3e" },
     { value: [1n, 2n, 3n], encoded: "li1ei2ei3ee" },
@@ -94,32 +103,32 @@ describe("encodeList", () => {
     }
   ];
 
-  it.each(cases1)("result should have 'l' as first character", elt => {
+  it.each(validTests)("result should have 'l' as first character", elt => {
     const str = encodeList(elt.value);
 
     expect(str[0]).toBe("l");
   });
 
-  it.each(cases1)("result should have 'e' as last character", elt => {
+  it.each(validTests)("result should have 'e' as last character", elt => {
     const str = encodeList(elt.value);
 
     expect(str[str.length - 1]).toBe("e");
   });
 
-  it.each(cases1)("result should be exact encoded list", elt => {
+  it.each(validTests)("result should be exact encoded list", elt => {
     const str = encodeList(elt.value);
 
     expect(str).toBe(elt.encoded);
   });
 
-  const cases2 = [
+  const invalidTests = [
     { value: [1, 2] },
     { value: [true, 2] },
     { value: [null, 4] },
     { value: [undefined, 3] }
   ];
 
-  it.each(cases2)(
+  it.each(invalidTests)(
     "should throw EncodeListError if list contains forbidden type",
     elt => {
       expect(() => {
@@ -130,7 +139,7 @@ describe("encodeList", () => {
 });
 
 describe("encodeDict", () => {
-  const cases1 = [
+  const validTests = [
     { value: {}, encoded: "de" },
     { value: { a: 1n, b: 2n }, encoded: "d1:ai1e1:bi2ee" },
     { value: { a: "test", b: 3n }, encoded: "d1:a4:test1:bi3ee" },
@@ -145,32 +154,32 @@ describe("encodeDict", () => {
     }
   ];
 
-  it.each(cases1)("result should have 'd' as first character", elt => {
+  it.each(validTests)("result should have 'd' as first character", elt => {
     const str = encodeDict(elt.value);
 
     expect(str[0]).toBe("d");
   });
 
-  it.each(cases1)("result should have 'e' as first character", elt => {
+  it.each(validTests)("result should have 'e' as first character", elt => {
     const str = encodeDict(elt.value);
 
     expect(str[str.length - 1]).toBe("e");
   });
 
-  it.each(cases1)("result should contains exact dict", elt => {
+  it.each(validTests)("result should contains exact dict", elt => {
     const str = encodeDict(elt.value);
 
     expect(str).toBe(elt.encoded);
   });
 
-  const cases2 = [
+  const invalidTests = [
     { value: { a: 1 } },
     { value: { a: true } },
     { value: { a: null } },
     { value: { a: undefined } }
   ];
 
-  it.each(cases2)(
+  it.each(invalidTests)(
     "should throw EncodedDictError if dict contains forbidden type",
     elt => {
       expect(() => {
@@ -181,27 +190,27 @@ describe("encodeDict", () => {
 });
 
 describe("encode", () => {
-  const cases1 = [
+  const validTests = [
     { value: 1n, encoded: "i1e" },
     { value: "test", encoded: "4:test" },
     { value: [1n, 2n, 3n, "test"], encoded: "li1ei2ei3e4:teste" },
     { value: { a: 1n, b: "2" }, encoded: "d1:ai1e1:b1:2e" }
   ];
 
-  it.each(cases1)("should returns the exact encoded value", elt => {
+  it.each(validTests)("should returns the exact encoded value", elt => {
     const str = encode(elt.value);
 
     expect(str).toBe(elt.encoded);
   });
 
-  const cases2 = [
+  const invalidTests = [
     { value: null },
     { value: undefined },
     { value: true },
     { value: 15 }
   ];
 
-  it.each(cases2)(
+  it.each(invalidTests)(
     "should throw an EncodeError if arg is of a forbidden type",
     elt => {
       expect(() => {
