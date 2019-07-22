@@ -1,4 +1,5 @@
 const path = require("path");
+const TerserPlugin = require("terser-webpack-plugin");
 
 module.exports = {
   entry: "./src/index.ts",
@@ -15,6 +16,9 @@ module.exports = {
   },
   resolve: {
     extensions: [".ts", ".js"]
+  },
+  optimization: {
+    minimizer: [new TerserPlugin()]
   },
   output: {
     filename: "bencode.js",
