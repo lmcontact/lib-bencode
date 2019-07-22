@@ -5,7 +5,8 @@ import {
   decodeInt,
   decodeString,
   decodeList,
-  decodeDict
+  decodeDict,
+  decode
 } from "../src/decode";
 
 describe("decodeInt", () => {
@@ -153,7 +154,7 @@ describe("decodeList", () => {
   ];
 
   it.each(invalidTests)(
-    "should throw an error if there is an error decoding subtype or in list structure",
+    "should throw an error if problem decoding subtype or with list structure",
     elt => {
       expect(() => {
         decodeList(elt.startIndex, elt.value);
@@ -219,10 +220,60 @@ describe("decodeDict", () => {
   ];
 
   it.each(invalidTests)(
-    "should throw error if there is an error decoding subtype or in dict structure",
+    "should throw an error if problem decoding subtype or with dict structure",
     elt => {
       expect(() => {
         decodeDict(elt.startIndex, elt.value);
+      }).toThrow(DecodeError);
+    }
+  );
+});
+
+describe("decode", () => {
+  const validTests = [
+    { value: "", decoded: null },
+    { value: "i312331e", decoded: 312331n },
+    { value: "4:test", decoded: "test" },
+    { value: "l3:foo3:bari5235ee", decoded: ["foo", "bar", 5235n] },
+    { value: "d1:a3:baz1:bi366ee", decoded: { a: "baz", b: 366n } },
+    {
+      value: "l4:testd1:ai3123e1:b3:fooei2563ee",
+      decoded: ["test", { a: 3123n, b: "foo" }, 2563n]
+    },
+    {
+      value: "d1:ai5345e1:bl3:foo3:bare1:c4:teste",
+      decoded: { a: 5345n, b: ["foo", "bar"], c: "test" }
+    },
+    {
+      value: "4:test3:foo",
+      decoded: ["test", "foo"]
+    },
+    {
+      value: "4:testi4234e",
+      decoded: ["test", 4234n]
+    }
+  ];
+
+  it.each(validTests)("result should be the decoded value", elt => {
+    const value = decode(elt.value);
+
+    expect(value).toEqual(elt.decoded);
+  });
+
+  const invalidTests = [
+    { value: "z" },
+    { value: "i--3123e" },
+    { value: "4:ea" },
+    { value: "lze" },
+    { value: "d1:aze" },
+    { value: "l3:foo4:test3:bar" }
+  ];
+
+  it.each(invalidTests)(
+    "should throw an error if problem with subconversion or with input structure",
+    elt => {
+      expect(() => {
+        decode(elt.value);
       }).toThrow(DecodeError);
     }
   );

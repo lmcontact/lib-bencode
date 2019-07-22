@@ -182,4 +182,46 @@ function decodeDict(index: number, data: string): [number, any] {
   return [index + 1, result];
 }
 
-export { DecodeError, decodeInt, decodeString, decodeList, decodeDict };
+function decode(data: string): any {
+  const result: any[] = [];
+  let index = 0;
+
+  while (index < data.length) {
+    let nextIndex, value;
+
+    if (data[index] === "i") {
+      try {
+        [nextIndex, value] = decodeInt(index, data);
+      } catch {
+        throw new DecodeError("decode: error decoding int");
+      }
+    } else if ("0123456789".includes(data[index])) {
+      try {
+        [nextIndex, value] = decodeString(index, data);
+      } catch {
+        throw new DecodeError("decode: error decoding string");
+      }
+    } else if (data[index] === "l") {
+      try {
+        [nextIndex, value] = decodeList(index, data);
+      } catch {
+        throw new DecodeError("decode: error decoding list");
+      }
+    } else if (data[index] === "d") {
+      try {
+        [nextIndex, value] = decodeDict(index, data);
+      } catch {
+        throw new DecodeError("decode: error decoding dict");
+      }
+    } else {
+      throw new DecodeError("decode: invalid value");
+    }
+
+    result.push(value);
+    index = nextIndex;
+  }
+
+  return result.length > 1 ? result : result.length ? result[0] : null;
+}
+
+export { DecodeError, decodeInt, decodeString, decodeList, decodeDict, decode };

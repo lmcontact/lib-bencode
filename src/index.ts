@@ -1,3 +1,4 @@
 import { encode } from "./encode";
+import { decode } from "./decode";
 
-export { encode };
+export { encode, decode };
