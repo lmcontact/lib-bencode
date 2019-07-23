@@ -110,19 +110,20 @@ function encodeDict(dict: any): string {
 /**
  * Return the bencoded form of the given argument.
  * @param {*} elt - The javascript element to encode.
- * @return {string} The bencoded form of the element.
+ * @return {Uint8Array} The bencoded form of the element.
  */
-function encode(elt: any): string {
+function encode(elt: any): Uint8Array {
   const type = getType(elt);
+  const te = new TextEncoder();
 
   if (type === "dict") {
-    return encodeDict(elt);
+    return te.encode(encodeDict(elt));
   } else if (type === "list") {
-    return encodeList(elt);
+    return te.encode(encodeList(elt));
   } else if (type === "bigint") {
-    return encodeInt(elt);
+    return te.encode(encodeInt(elt));
   } else if (type === "string") {
-    return encodeString(elt);
+    return te.encode(encodeString(elt));
   } else {
     throw new EncodeError(`encodeDict: wrong type ${type}`);
   }

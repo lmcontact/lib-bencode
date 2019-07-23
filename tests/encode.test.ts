@@ -70,7 +70,7 @@ describe("encodeInt", () => {
     BigInt(371238127398127381927398127391273)
   ].map(elt => ({ value: elt, encoded: encodeInt(elt) }));
 
-  it.each(validTests)("ressult should have 'i' as first character", elt => {
+  it.each(validTests)("result should have 'i' as first character", elt => {
     expect(elt.encoded[0]).toBe("i");
   });
 
@@ -93,9 +93,18 @@ describe("encodeList", () => {
   const validTests = [
     { value: [], encoded: "le" },
     { value: ["1", "2", "3"], encoded: "l1:11:21:3e" },
-    { value: [BigInt(1), BigInt(2), BigInt(3)], encoded: "li1ei2ei3ee" },
-    { value: [BigInt(1), "test", BigInt(4)], encoded: "li1e4:testi4ee" },
-    { value: [BigInt(1), [BigInt(2), BigInt(3)]], encoded: "li1eli2ei3eee" },
+    {
+      value: [BigInt(1), BigInt(2), BigInt(3)],
+      encoded: "li1ei2ei3ee"
+    },
+    {
+      value: [BigInt(1), "test", BigInt(4)],
+      encoded: "li1e4:testi4ee"
+    },
+    {
+      value: [BigInt(1), [BigInt(2), BigInt(3)]],
+      encoded: "li1eli2ei3eee"
+    },
     { value: [BigInt(1), ["2", "3"]], encoded: "li1el1:21:3ee" },
     {
       value: [BigInt(1), { a: "1", b: "2" }, { c: "3" }],
@@ -190,20 +199,21 @@ describe("encodeDict", () => {
 });
 
 describe("encode", () => {
+  const te = new TextEncoder();
   const validTests = [
-    { value: BigInt(1), encoded: "i1e" },
-    { value: "test", encoded: "4:test" },
+    { value: BigInt(1), encoded: te.encode("i1e") },
+    { value: "test", encoded: te.encode("4:test") },
     {
       value: [BigInt(1), BigInt(2), BigInt(3), "test"],
-      encoded: "li1ei2ei3e4:teste"
+      encoded: te.encode("li1ei2ei3e4:teste")
     },
-    { value: { a: BigInt(1), b: "2" }, encoded: "d1:ai1e1:b1:2e" }
+    { value: { a: BigInt(1), b: "2" }, encoded: te.encode("d1:ai1e1:b1:2e") }
   ];
 
   it.each(validTests)("should returns the exact encoded value", elt => {
     const str = encode(elt.value);
 
-    expect(str).toBe(elt.encoded);
+    expect(str).toEqual(elt.encoded);
   });
 
   const invalidTests = [

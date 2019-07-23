@@ -23,6 +23,6 @@ module.exports = {
   output: {
     filename: "bencode.js",
     path: path.resolve(__dirname, "dist"),
-    library: "Bencode"
+    library: "bencode"
   }
 };
