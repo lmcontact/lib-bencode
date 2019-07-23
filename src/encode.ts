@@ -3,6 +3,8 @@
  * to it's bencoded equivalent
  */
 
+import * as tokens from "./tokens";
+
 /** Class representing an encoding error.
  * @extends Error
  */
@@ -24,7 +26,9 @@ class EncodeError extends Error {
 function getType(elt: any): string {
   const type = typeof elt;
 
-  if (type === "object") {
+  if (elt && elt.buffer) {
+    return "rawstring";
+  } else if (type === "object") {
     return elt === null ? "null" : elt instanceof Array ? "list" : "dict";
   } else {
     return type;
@@ -36,8 +40,15 @@ function getType(elt: any): string {
  * @param {string} str - The javascript string.
  * @return {string} The bencoded string.
  */
-function encodeString(str: string): string {
-  return `${str.length}:${str}`;
+function encodeString(str: Uint8Array): Uint8Array {
+  const len = new TextEncoder().encode(String(str.length));
+  const buf = new Uint8Array(new ArrayBuffer(len.length + 1 + str.length));
+
+  buf.set(len, 0);
+  buf.set([tokens.COLON], len.length);
+  buf.set(str, len.length + 1);
+
+  return buf;
 }
 
 /**
@@ -45,8 +56,8 @@ function encodeString(str: string): string {
  * @param {BigInteger} n - The javascript BigInt.
  * @return {string} The bencoded int.
  */
-function encodeInt(n: BigInt): string {
-  return `i${n.toString()}e`;
+function encodeInt(n: BigInt): Uint8Array {
+  return new TextEncoder().encode(`i${n.toString()}e`);
 }
 
 /**
@@ -54,8 +65,9 @@ function encodeInt(n: BigInt): string {
  * @param {*} list - The javascript array.
  * @return {string} The bencoded list.
  */
-function encodeList(list: any[]): string {
-  const result: string[] = [];
+function encodeList(list: any[]): Uint8Array {
+  const result: Uint8Array[] = [];
+  const te = new TextEncoder();
 
   list.forEach(elt => {
     const type = getType(elt);
@@ -66,14 +78,30 @@ function encodeList(list: any[]): string {
       result.push(encodeDict(elt));
     } else if (type === "bigint") {
       result.push(encodeInt(elt));
-    } else if (type === "string") {
+    } else if (type === "rawstring") {
       result.push(encodeString(elt));
+    } else if (type === "string") {
+      result.push(encodeString(te.encode(elt)));
     } else {
       throw new EncodeError(`encodeList: wrong type ${type}`);
     }
   });
 
-  return `l${result.join("")}e`;
+  const bufLen = result.length
+    ? result.map(elt => elt.length).reduce((a, b) => a + b)
+    : 0;
+  const buf = new Uint8Array(new ArrayBuffer(bufLen + 2));
+  let index = 0;
+
+  buf.set([tokens.LIST_DELIMITER], index);
+  index++;
+  for (let elt of result) {
+    buf.set(elt, index);
+    index += elt.length;
+  }
+  buf.set([tokens.END_DELIMITER], index);
+
+  return buf;
 }
 
 /**
@@ -81,8 +109,9 @@ function encodeList(list: any[]): string {
  * @param {*} dict - The javascript object.
  * @return {string} The bencoded dict.
  */
-function encodeDict(dict: any): string {
-  const result: string[] = [];
+function encodeDict(dict: any): Uint8Array {
+  const result: Uint8Array[] = [];
+  const te = new TextEncoder();
   const keys = Object.keys(dict);
 
   keys.sort();
@@ -90,13 +119,15 @@ function encodeDict(dict: any): string {
   for (let k of keys) {
     const type = getType(dict[k]);
 
-    result.push(`${k.length}:${k}`);
+    result.push(te.encode(`${k.length}:${k}`));
     if (type === "dict") {
       result.push(encodeDict(dict[k]));
     } else if (type === "list") {
       result.push(encodeList(dict[k]));
-    } else if (type === "string") {
+    } else if (type === "rawstring") {
       result.push(encodeString(dict[k]));
+    } else if (type === "string") {
+      result.push(encodeString(te.encode(dict[k])));
     } else if (type === "bigint") {
       result.push(encodeInt(dict[k]));
     } else {
@@ -104,7 +135,21 @@ function encodeDict(dict: any): string {
     }
   }
 
-  return `d${result.join("")}e`;
+  const bufLen = result.length
+    ? result.map(elt => elt.length).reduce((a, b) => a + b)
+    : 0;
+  const buf = new Uint8Array(new ArrayBuffer(bufLen + 2));
+  let index = 0;
+
+  buf.set([tokens.DICT_DELIMITER], index);
+  index++;
+  for (let elt of result) {
+    buf.set(elt, index);
+    index += elt.length;
+  }
+  buf.set([tokens.END_DELIMITER], index);
+
+  return buf;
 }
 
 /**
@@ -114,16 +159,17 @@ function encodeDict(dict: any): string {
  */
 function encode(elt: any): Uint8Array {
   const type = getType(elt);
-  const te = new TextEncoder();
 
   if (type === "dict") {
-    return te.encode(encodeDict(elt));
+    return encodeDict(elt);
   } else if (type === "list") {
-    return te.encode(encodeList(elt));
+    return encodeList(elt);
   } else if (type === "bigint") {
-    return te.encode(encodeInt(elt));
+    return encodeInt(elt);
+  } else if (type === "rawstring") {
+    return encodeString(elt);
   } else if (type === "string") {
-    return te.encode(encodeString(elt));
+    return encodeString(new TextEncoder().encode(elt));
   } else {
     throw new EncodeError(`encodeDict: wrong type ${type}`);
   }

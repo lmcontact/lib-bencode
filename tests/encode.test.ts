@@ -8,8 +8,15 @@ import {
   encode
 } from "../src/encode";
 
+import * as tokens from "../src/tokens";
+
 describe("getType", () => {
+  const te = new TextEncoder();
   const validTests = [
+    {
+      value: te.encode("adsd"),
+      type: "rawstring"
+    },
     { value: "test", type: "string" },
     { value: BigInt(4234), type: "bigint" },
     { value: [BigInt(1), BigInt(2), BigInt(3)], type: "list" },
@@ -29,22 +36,24 @@ describe("getType", () => {
 });
 
 describe("encodeString", () => {
+  const te = new TextEncoder();
+  const td = new TextDecoder();
   const validTests = ["test", "bencoded", "a", "str", "abc:def", ":", ""].map(
     elt => ({
-      str: elt,
-      encoded: encodeString(elt)
+      str: te.encode(elt),
+      encoded: encodeString(te.encode(elt))
     })
   );
 
   it.each(validTests)("result should contains a colon", elt => {
-    expect(elt.encoded.indexOf(":")).not.toBe(-1);
+    expect(elt.encoded.indexOf(tokens.COLON)).not.toBe(-1);
   });
 
   it.each(validTests)(
     "result should contains string length before colon",
     elt => {
-      const indexColon = elt.encoded.indexOf(":");
-      const len = parseInt(elt.encoded.substring(0, indexColon));
+      const indexColon = elt.encoded.indexOf(tokens.COLON);
+      const len = parseInt(td.decode(elt.encoded.slice(0, indexColon)));
 
       expect(len).toBe(elt.str.length);
     }
@@ -53,10 +62,10 @@ describe("encodeString", () => {
   it.each(validTests)(
     "result should contains exact string after colon",
     elt => {
-      const indexColon = elt.encoded.indexOf(":");
-      const str = elt.encoded.substring(indexColon + 1);
+      const indexColon = elt.encoded.indexOf(tokens.COLON);
+      const str = elt.encoded.slice(indexColon + 1);
 
-      expect(str).toBe(elt.str);
+      expect(str.toString()).toBe(elt.str.toString());
     }
   );
 });
@@ -71,17 +80,19 @@ describe("encodeInt", () => {
   ].map(elt => ({ value: elt, encoded: encodeInt(elt) }));
 
   it.each(validTests)("result should have 'i' as first character", elt => {
-    expect(elt.encoded[0]).toBe("i");
+    expect(elt.encoded[0]).toBe(tokens.INT_DELIMITER);
   });
 
   it.each(validTests)("result should have 'e' as last character", elt => {
-    expect(elt.encoded[elt.encoded.length - 1]).toBe("e");
+    expect(elt.encoded[elt.encoded.length - 1]).toBe(tokens.END_DELIMITER);
   });
 
   it.each(validTests)(
     "result should contains exact bigint between 'i' and 'e'",
     elt => {
-      const str = elt.encoded.substring(1, elt.encoded.length - 1);
+      const str = new TextDecoder().decode(
+        elt.encoded.slice(1, elt.encoded.length - 1)
+      );
       const n = BigInt(str);
 
       expect(n).toBe(elt.value);
@@ -90,44 +101,46 @@ describe("encodeInt", () => {
 });
 
 describe("encodeList", () => {
+  const te = new TextEncoder();
   const validTests = [
-    { value: [], encoded: "le" },
-    { value: ["1", "2", "3"], encoded: "l1:11:21:3e" },
+    { value: [], encoded: te.encode("le") },
+    { value: [te.encode("1"), te.encode("2")], encoded: te.encode("l1:11:2e") },
+    { value: ["1", "2", "3"], encoded: te.encode("l1:11:21:3e") },
     {
       value: [BigInt(1), BigInt(2), BigInt(3)],
-      encoded: "li1ei2ei3ee"
+      encoded: te.encode("li1ei2ei3ee")
     },
     {
       value: [BigInt(1), "test", BigInt(4)],
-      encoded: "li1e4:testi4ee"
+      encoded: te.encode("li1e4:testi4ee")
     },
     {
       value: [BigInt(1), [BigInt(2), BigInt(3)]],
-      encoded: "li1eli2ei3eee"
+      encoded: te.encode("li1eli2ei3eee")
     },
-    { value: [BigInt(1), ["2", "3"]], encoded: "li1el1:21:3ee" },
+    { value: [BigInt(1), ["2", "3"]], encoded: te.encode("li1el1:21:3ee") },
     {
       value: [BigInt(1), { a: "1", b: "2" }, { c: "3" }],
-      encoded: "li1ed1:a1:11:b1:2ed1:c1:3ee"
+      encoded: te.encode("li1ed1:a1:11:b1:2ed1:c1:3ee")
     }
   ];
 
   it.each(validTests)("result should have 'l' as first character", elt => {
     const str = encodeList(elt.value);
 
-    expect(str[0]).toBe("l");
+    expect(str[0]).toBe(tokens.LIST_DELIMITER);
   });
 
   it.each(validTests)("result should have 'e' as last character", elt => {
     const str = encodeList(elt.value);
 
-    expect(str[str.length - 1]).toBe("e");
+    expect(str[str.length - 1]).toBe(tokens.END_DELIMITER);
   });
 
   it.each(validTests)("result should be exact encoded list", elt => {
     const str = encodeList(elt.value);
 
-    expect(str).toBe(elt.encoded);
+    expect(str.toString()).toBe(elt.encoded.toString());
   });
 
   const invalidTests = [
@@ -148,37 +161,51 @@ describe("encodeList", () => {
 });
 
 describe("encodeDict", () => {
+  const te = new TextEncoder();
   const validTests = [
-    { value: {}, encoded: "de" },
-    { value: { a: BigInt(1), b: BigInt(2) }, encoded: "d1:ai1e1:bi2ee" },
-    { value: { a: "test", b: BigInt(3) }, encoded: "d1:a4:test1:bi3ee" },
+    { value: {}, encoded: te.encode("de") },
+    {
+      value: { a: te.encode("1"), b: "2" },
+      encoded: te.encode("d1:a1:11:b1:2e")
+    },
+    {
+      value: { a: BigInt(1), b: BigInt(2) },
+      encoded: te.encode("d1:ai1e1:bi2ee")
+    },
+    {
+      value: { a: "test", b: BigInt(3) },
+      encoded: te.encode("d1:a4:test1:bi3ee")
+    },
     {
       value: { a: { b: BigInt(1), c: "2" }, d: "3" },
-      encoded: "d1:ad1:bi1e1:c1:2e1:d1:3e"
+      encoded: te.encode("d1:ad1:bi1e1:c1:2e1:d1:3e")
     },
-    { value: { a: [BigInt(1), "2"], b: "3" }, encoded: "d1:ali1e1:2e1:b1:3e" },
+    {
+      value: { a: [BigInt(1), "2"], b: "3" },
+      encoded: te.encode("d1:ali1e1:2e1:b1:3e")
+    },
     {
       value: { a: [{ b: BigInt(1) }, { c: "2" }], d: { e: BigInt(3), f: "4" } },
-      encoded: "d1:ald1:bi1eed1:c1:2ee1:dd1:ei3e1:f1:4ee"
+      encoded: te.encode("d1:ald1:bi1eed1:c1:2ee1:dd1:ei3e1:f1:4ee")
     }
   ];
 
   it.each(validTests)("result should have 'd' as first character", elt => {
     const str = encodeDict(elt.value);
 
-    expect(str[0]).toBe("d");
+    expect(str[0]).toBe(tokens.DICT_DELIMITER);
   });
 
   it.each(validTests)("result should have 'e' as first character", elt => {
     const str = encodeDict(elt.value);
 
-    expect(str[str.length - 1]).toBe("e");
+    expect(str[str.length - 1]).toBe(tokens.END_DELIMITER);
   });
 
   it.each(validTests)("result should contains exact dict", elt => {
     const str = encodeDict(elt.value);
 
-    expect(str).toBe(elt.encoded);
+    expect(str.toString()).toBe(elt.encoded.toString());
   });
 
   const invalidTests = [
@@ -203,6 +230,7 @@ describe("encode", () => {
   const validTests = [
     { value: BigInt(1), encoded: te.encode("i1e") },
     { value: "test", encoded: te.encode("4:test") },
+    { value: te.encode("test"), encoded: te.encode("4:test") },
     {
       value: [BigInt(1), BigInt(2), BigInt(3), "test"],
       encoded: te.encode("li1ei2ei3e4:teste")
@@ -213,7 +241,7 @@ describe("encode", () => {
   it.each(validTests)("should returns the exact encoded value", elt => {
     const str = encode(elt.value);
 
-    expect(str).toEqual(elt.encoded);
+    expect(str.toString()).toBe(elt.encoded.toString());
   });
 
   const invalidTests = [
