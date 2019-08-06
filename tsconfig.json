@@ -6,11 +6,8 @@
     "strict": true,
     "noImplicitAny": true,
     "noUnusedParameters": true,
-    "noUnusedLocals": true,
-    "allowJs": true
+    "noUnusedLocals": true
   },
   "compileOnSave": true,
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }
