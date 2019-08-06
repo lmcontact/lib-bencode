@@ -19,7 +19,8 @@
   },
   "dependencies": {},
   "scripts": {
-    "test": "jest --coverage",
-    "build": "webpack"
+    "test": "tsc && jest --coverage && yarn run clean",
+    "build": "webpack",
+    "clean": "rm -f src/*.js* tests/*.js*"
   }
 }
