@@ -7,7 +7,6 @@ import {
   encodeDict,
   encode
 } from "../src/encode";
-
 import * as tokens from "../src/tokens";
 
 describe("getType", () => {
