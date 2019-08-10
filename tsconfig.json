@@ -6,7 +6,8 @@
     "strict": true,
     "noImplicitAny": true,
     "noUnusedParameters": true,
-    "noUnusedLocals": true
+    "noUnusedLocals": true,
+    "removeComments": true
   },
   "compileOnSave": true,
   "exclude": ["node_modules"]
