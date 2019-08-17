@@ -1,16 +1,13 @@
-/**
- * This file contains all the functions needed to encode a javascript object
- * to it's bencoded equivalent
- */
-
 import * as tokens from "./tokens";
 
-/** Class representing an encoding error.
+/**
+ * Class representing an encoding error.
+ *
  * @extends Error
  */
 class EncodeError extends Error {
   /**
-   * Create an EncodeError object.
+   * @constructs EncodeError
    * @param {string} message - A string describing the error.
    */
   constructor(message: string) {
@@ -20,6 +17,8 @@ class EncodeError extends Error {
 
 /**
  * Helper - return the type of the element given in argument.
+ *
+ * @function getType
  * @param {*} elt - The element from which we want the type.
  * @return {string} The string corresponding to the type.
  */
@@ -37,6 +36,8 @@ function getType(elt: any): string {
 
 /**
  * Return a bencoded string given a javascript string.
+ *
+ * @function encodeString
  * @param {string} str - The javascript string.
  * @return {string} The bencoded string.
  */
@@ -53,6 +54,8 @@ function encodeString(str: Uint8Array): Uint8Array {
 
 /**
  * Return a bencoded int given a javascript BigInt.
+ *
+ * @function encodeInt
  * @param {BigInteger} n - The javascript BigInt.
  * @return {string} The bencoded int.
  */
@@ -62,6 +65,8 @@ function encodeInt(n: BigInt): Uint8Array {
 
 /**
  * Return a bencoded list given a javascript array.
+ *
+ * @function encodeList
  * @param {*} list - The javascript array.
  * @return {string} The bencoded list.
  */
@@ -106,6 +111,8 @@ function encodeList(list: any[]): Uint8Array {
 
 /**
  * Return a bencoded dict given a javascript object.
+ *
+ * @function encodeDict
  * @param {*} dict - The javascript object.
  * @return {string} The bencoded dict.
  */
@@ -154,6 +161,8 @@ function encodeDict(dict: any): Uint8Array {
 
 /**
  * Return the bencoded form of the given argument.
+ *
+ * @function encode
  * @param {*} elt - The javascript element to encode.
  * @return {Uint8Array} The bencoded form of the element.
  */
