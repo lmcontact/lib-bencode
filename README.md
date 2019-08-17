@@ -1,5 +1,7 @@
 # lib-bencode
 
+[![Build Status](https://travis-ci.org/lmcontact/lib-bencode.svg?branch=master)](https://travis-ci.org/lmcontact/lib-bencode)
+
 Bencode library in TypeScript.
 
 It's not pre-compiled, made for use with webpack.

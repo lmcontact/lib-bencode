@@ -1,3 +1,5 @@
+env:
+  - CODECOV_TOKEN="68ebd50d-815c-4fbb-9254-1aa690ab8aa3"
 language: node_js
 node_js:
   - "12.8"
@@ -7,3 +9,5 @@ before_script:
   - yarn
 script:
   - yarn run test
+after_success:
+  - codecov

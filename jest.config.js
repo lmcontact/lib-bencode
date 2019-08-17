@@ -4,5 +4,6 @@ module.exports = {
   moduleFileExtensions: ["js"],
   silent: false,
   roots: ["tests"],
-  collectCoverage: true
+  collectCoverage: true,
+  coverageDirectory: "./coverage/"
 };
