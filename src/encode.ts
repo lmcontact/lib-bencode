@@ -3,6 +3,7 @@ import * as tokens from "./tokens";
 /**
  * Class representing an encoding error.
  *
+ * @class EncodeError
  * @extends Error
  */
 class EncodeError extends Error {
