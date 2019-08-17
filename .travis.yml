@@ -1,8 +1,10 @@
 sudo: required
 language: nodejs
 node_js:
-  - 12
+  - "12.8"
 cache:
   yarn: true
+before_script:
+  - yarn
 script:
   - yarn run test
