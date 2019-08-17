@@ -1,5 +1,5 @@
 {
-  "name": "libbencode",
+  "name": "lib-bencode",
   "version": "1.0.0",
   "description": "library to encode/decode bencoded string",
   "private": true,
