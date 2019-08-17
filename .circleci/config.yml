@@ -3,18 +3,21 @@ jobs:
   build:
     working_directory: ~/lib-bencode
     docker:
-      -image: circleci/node:12.8
+      - image: circleci/node:12.8
     steps:
       - checkout
       - restore_cache:
-          key: dependency-cache-{{ checksum "yarn.lock" }}
+          name: Restore yarn package cache
+          key:
+            - yarn-packages-{{ checksum "yarn.lock" }}
       - run:
-          name: install-packages
-          command: yarn
+          name: Install dependencies
+          command: yarn install --frozen-lockfile
       - save_cache:
-          key: dependency-cache{{ checksum "yarn.lock" }}
+          name: Save yarn package cache
+          key: yarn-packages-{{ checksum "yarn.lock" }}
           paths:
-            - ./node_modules
+            - ~/.cache/yarn
       - run:
-          name: test
+          name: Run tests
           command: yarn run test
