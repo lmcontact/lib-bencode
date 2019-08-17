@@ -1,9 +1,11 @@
 version: 2
 jobs:
   build:
-    working_directory: ~/lib-bencode
+    environment:
+      CC_TEST_REPORTER_ID: d44b84b3504b4f677fa0ca49eec0720fb73b913f1aab7542a27f7833acf7415a
     docker:
       - image: circleci/node:12.8
+    working_directory: ~/lib-bencode
     steps:
       - checkout
       - restore_cache:
@@ -19,5 +21,13 @@ jobs:
           paths:
             - ~/.cache/yarn
       - run:
+          name: Setup Code Climate test-reporter
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+      - run:
           name: Run tests
-          command: yarn run test
+          command: |
+            ./cc-test-reporter before-build
+            yarn run test
+            ./cc-test-reporter after-build --coverage-input-type lcov --exit-code $?
