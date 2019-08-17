@@ -1,6 +1,6 @@
 # lib-bencode
 
-[![Build Status](https://travis-ci.org/lmcontact/lib-bencode.svg?branch=master)](https://travis-ci.org/lmcontact/lib-bencode)
+[![CircleCI](https://circleci.com/gh/lmcontact/lib-bencode.svg?style=svg)](https://circleci.com/gh/lmcontact/lib-bencode)
 
 Bencode library in TypeScript.
 
