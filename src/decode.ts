@@ -3,6 +3,7 @@ import * as tokens from "./tokens";
 /**
  * Class representing a decoding error.
  *
+ * @private
  * @class DecodeError
  * @extends Error
  */
@@ -19,6 +20,7 @@ class DecodeError extends Error {
 /**
  * Return an array containing the next starting index and the decoded int.
  *
+ * @private
  * @function decodeInt
  * @param {number} index - The starting index.
  * @param {Uint8Array} data - The data to decode.
@@ -54,6 +56,7 @@ function decodeInt(index: number, data: Uint8Array): [number, bigint] {
 /**
  * Return an array containing the next starting index and the decoded string.
  *
+ * @private
  * @function decodeString
  * @param {number} index - The starting index.
  * @param {Uint8Array} data - The data to decode.
@@ -81,6 +84,7 @@ function decodeString(index: number, data: Uint8Array): [number, Uint8Array] {
 /**
  * Return an array containing the next starting index and the decoded list.
  *
+ * @private
  * @function decodeList
  * @param {number} index - The starting index.
  * @param {Uint8Array} data - The data to decode.
@@ -137,6 +141,7 @@ function decodeList(index: number, data: Uint8Array): any[] {
 /**
  * Return an array containing the next starting index and the decoded dict.
  *
+ * @private
  * @function decodeDict
  * @param {number} index - The starting index.
  * @param {Uint8Array} data - The data to decode.
@@ -201,6 +206,7 @@ function decodeDict(index: number, data: Uint8Array): [number, any] {
 /**
  * Return the decoded bencoded data string converted into javascript object.
  *
+ * @public
  * @function decode
  * @param {Uint8Array} data - The bencoded data.
  * @return {*} The javascript object obtained by decoding the data.

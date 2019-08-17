@@ -16,7 +16,7 @@
   },
   "dependencies": {},
   "scripts": {
-    "test": "tsc && jest --coverage && yarn run clean",
+    "test": "tsc && jest && yarn run clean",
     "clean": "rm -f src/*.js* tests/*.js*"
   }
 }

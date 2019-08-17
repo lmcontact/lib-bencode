@@ -4,5 +4,5 @@ module.exports = {
   moduleFileExtensions: ["js"],
   silent: false,
   roots: ["tests"],
-	//verbose: true
+  collectCoverage: true
 };
