@@ -16,7 +16,7 @@
     "typescript": "^3.5.3"
   },
   "scripts": {
-    "test": "tsc && jest && yarn run clean",
+    "test": "tsc && jest",
     "clean": "rm -f src/*.js* tests/*.js*"
   }
 }

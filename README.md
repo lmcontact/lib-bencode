@@ -11,7 +11,7 @@ Require ES6 support for BigInt.
 ## Testing
 
 ```bash
-yarn && yarn run test
+yarn && yarn run test && yarn run clean
 ```
 ## Usage
 
