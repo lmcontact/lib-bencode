@@ -1,0 +1,20 @@
+version: 2
+jobs:
+  build:
+    workin_directory: ~/lib-bencode
+    docker:
+      -image: circleci/node:12.8
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: install-packages
+          command: yarn
+      - save_cache:
+          key: dependency-cache{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+      - run:
+          name: test
+          command: yarn run test
