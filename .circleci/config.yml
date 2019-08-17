@@ -26,8 +26,11 @@ jobs:
             curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
             chmod +x ./cc-test-reporter
       - run:
+          name: Before build Code Climate action
+          command: ./cc-test-reporter before-build
+      - run:
           name: Run tests
-          command: |
-            # ./cc-test-reporter before-build
-            yarn run test
-            # ./cc-test-reporter after-build --coverage-input-type lcov --exit-code $?
+          command: yarn run test
+      - run:
+          name: After build Code Climate action
+          command: ./cc-test-reporter after-build -t lcov --exit-code $?
