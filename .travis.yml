@@ -1,13 +1,17 @@
 env:
-  - CODECOV_TOKEN="68ebd50d-815c-4fbb-9254-1aa690ab8aa3"
+  global:
+    - CC_TEST_REPORTER_ID=d44b84b3504b4f677fa0ca49eec0720fb73b913f1aab7542a27f7833acf7415a
 language: node_js
 node_js:
   - "12.8"
 cache:
   yarn: true
 before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
   - yarn
 script:
   - yarn run test
-after_success:
-  - codecov
+after_script:
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT

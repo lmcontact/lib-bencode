@@ -9,6 +9,5 @@
     "noUnusedLocals": true,
     "removeComments": true
   },
-  "compileOnSave": true,
   "exclude": ["node_modules", "./index.ts"]
 }
