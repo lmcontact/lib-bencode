@@ -33,4 +33,4 @@ jobs:
           command: yarn run test
       - run:
           name: After build Code Climate action
-          command: ./cc-test-reporter after-build -t lcov --exit-code $?
+          command: ls -l
