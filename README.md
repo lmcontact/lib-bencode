@@ -1,6 +1,8 @@
 # lib-bencode
 
 [![CircleCI](https://circleci.com/gh/lmcontact/lib-bencode.svg?style=svg)](https://circleci.com/gh/lmcontact/lib-bencode)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/8da79bb0c4b64da43ad4/test_coverage)](https://codeclimate.com/github/lmcontact/lib-bencode/test_coverage)
+[![Maintainability](https://api.codeclimate.com/v1/badges/8da79bb0c4b64da43ad4/maintainability)](https://codeclimate.com/github/lmcontact/lib-bencode/maintainability)
 
 Bencode library in TypeScript.
 
