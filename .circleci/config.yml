@@ -1,7 +1,7 @@
 version: 2
 jobs:
   build:
-    workin_directory: ~/lib-bencode
+    working_directory: ~/lib-bencode
     docker:
       -image: circleci/node:12.8
     steps:
