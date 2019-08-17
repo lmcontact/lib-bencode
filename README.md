@@ -8,6 +8,11 @@ It's not pre-compiled, made for use with webpack.
 
 Require ES6 support for BigInt.
 
+## Testing
+
+```bash
+yarn && yarn run test
+```
 ## Usage
 
 ```typescript
