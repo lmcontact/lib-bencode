@@ -33,4 +33,4 @@ jobs:
           command: yarn run test
       - run:
           name: After build Code Climate action
-          command: ls -l
+          command: ./cc-test-report after-build --coverage-input-type clover --exit-code $?
