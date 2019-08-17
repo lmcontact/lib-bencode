@@ -8,7 +8,7 @@ jobs:
       - checkout
       - restore_cache:
           name: Restore yarn package cache
-          key:
+          keys:
             - yarn-packages-{{ checksum "yarn.lock" }}
       - run:
           name: Install dependencies
