@@ -3,12 +3,9 @@
 [![CircleCI](https://circleci.com/gh/lmcontact/lib-bencode.svg?style=svg)](https://circleci.com/gh/lmcontact/lib-bencode)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/8da79bb0c4b64da43ad4/test_coverage)](https://codeclimate.com/github/lmcontact/lib-bencode/test_coverage)
 [![Maintainability](https://api.codeclimate.com/v1/badges/8da79bb0c4b64da43ad4/maintainability)](https://codeclimate.com/github/lmcontact/lib-bencode/maintainability)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Bencode library in TypeScript based on [specification](https://wiki.theory.org/index.php/BitTorrentSpecification#Bencoding).
-
-It's not pre-compiled, made for use with webpack or to compile by yourself.
-
-Require ES6 support for BigInt.
 
 ## Testing
 
