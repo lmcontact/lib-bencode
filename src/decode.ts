@@ -23,36 +23,24 @@ class DecodeError extends Error {
  * @private
  * @function decodeMap
  * @throw DecodeError
- * @return {function} The function corresponding to the delimiter.
+ * @return {[number, *]} The array containing the next index and the value.
  */
 function decodeMap(data: Uint8Array, index: number): [number, any] {
+  let nextIndex: number, value: any;
+
   if (data[index] === tokens.INT_DELIMITER) {
-    try {
-      return decodeInt(index, data);
-    } catch {
-      throw new DecodeError("decode: error decoding int");
-    }
+    [nextIndex, value] = decodeInt(index, data);
   } else if (tokens.STR_DELIMITERS.includes(data[index])) {
-    try {
-      return decodeString(index, data);
-    } catch {
-      throw new DecodeError("decode: error decoding string");
-    }
+    [nextIndex, value] = decodeString(index, data);
   } else if (data[index] === tokens.LIST_DELIMITER) {
-    try {
-      return decodeList(index, data);
-    } catch {
-      throw new DecodeError("decode: error decoding list");
-    }
+    [nextIndex, value] = decodeList(index, data);
   } else if (data[index] === tokens.DICT_DELIMITER) {
-    try {
-      return decodeDict(index, data);
-    } catch {
-      throw new DecodeError("decode: error decoding dict");
-    }
+    [nextIndex, value] = decodeDict(index, data);
   } else {
     throw new DecodeError("decode: invalid value");
   }
+
+  return [nextIndex, value];
 }
 
 /**
