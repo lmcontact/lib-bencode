@@ -26,16 +26,14 @@ class EncodeError extends Error {
  * @return {string} The string corresponding to the type.
  */
 function getType(elt: any): string {
-  const type = typeof elt;
+  let type: string = typeof elt;
 
   if (elt && elt.buffer) {
-    return "rawstring";
+    type = "rawstring";
+  } else if (type === "object" && elt === null) {
+    type = "null";
   } else if (type === "object") {
-    if (elt === null) {
-      return "null";
-    } else {
-      return elt instanceof Array ? "list" : "dict";
-    }
+    type = elt instanceof Array ? "list" : "dict";
   }
 
   return type;
@@ -107,7 +105,7 @@ function encodeInt(n: BigInt): Uint8Array {
  *
  * @private
  * @function concatBufs
- * @param {Uint8Array[]} elt - The Uint8Arrays to concat.
+ * @param {Uint8Array[]} bufs- The Uint8Arrays to concat.
  * @param {string} del - A start delimiter.
  * @return {} - The converted list or dict to buf.
  */
