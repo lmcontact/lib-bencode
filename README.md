@@ -24,3 +24,7 @@ const result = bencode.decode(rawFile);
 // encode
 const bencoded = bencode.encode(result);
 ```
+
+## Todo
+
+[ ] Add Webpack script to build bundle and declarations.
