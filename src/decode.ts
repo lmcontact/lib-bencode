@@ -18,10 +18,49 @@ class DecodeError extends Error {
 }
 
 /**
- * Return an array containing the next starting index and the decoded int.
+ * Function mapping a decode function given a delimiter.
+ *
+ * @private
+ * @function decodeMap
+ * @throw DecodeError
+ * @return {function} The function corresponding to the delimiter.
+ */
+function decodeMap(data: Uint8Array, index: number): [number, any] {
+  if (data[index] === tokens.INT_DELIMITER) {
+    try {
+      return decodeInt(index, data);
+    } catch {
+      throw new DecodeError("decode: error decoding int");
+    }
+  } else if (tokens.STR_DELIMITERS.includes(data[index])) {
+    try {
+      return decodeString(index, data);
+    } catch {
+      throw new DecodeError("decode: error decoding string");
+    }
+  } else if (data[index] === tokens.LIST_DELIMITER) {
+    try {
+      return decodeList(index, data);
+    } catch {
+      throw new DecodeError("decode: error decoding list");
+    }
+  } else if (data[index] === tokens.DICT_DELIMITER) {
+    try {
+      return decodeDict(index, data);
+    } catch {
+      throw new DecodeError("decode: error decoding dict");
+    }
+  } else {
+    throw new DecodeError("decode: invalid value");
+  }
+}
+
+/**
+ * Function returning an array containing the next starting index and the decoded int.
  *
  * @private
  * @function decodeInt
+ * @throws DecodeError
  * @param {number} index - The starting index.
  * @param {Uint8Array} data - The data to decode.
  * @return {[number, bigint]} The array containing the next index and the
@@ -58,6 +97,7 @@ function decodeInt(index: number, data: Uint8Array): [number, bigint] {
  *
  * @private
  * @function decodeString
+ * @throws DecodeError
  * @param {number} index - The starting index.
  * @param {Uint8Array} data - The data to decode.
  * @return {[number, string]} The array containing the next starting index and
@@ -86,46 +126,19 @@ function decodeString(index: number, data: Uint8Array): [number, Uint8Array] {
  *
  * @private
  * @function decodeList
+ * @throws DecodeError
  * @param {number} index - The starting index.
  * @param {Uint8Array} data - The data to decode.
  * @return {[number, *[]]} The array containing the next starting index and
  * the decoded list.
  */
-function decodeList(index: number, data: Uint8Array): any[] {
+function decodeList(index: number, data: Uint8Array): [number, any[]] {
   index++;
 
-  const result = [];
+  const result: any[] = [];
 
   while (index < data.length && data[index] !== tokens.END_DELIMITER) {
-    let nextIndex, value;
-
-    if (data[index] === tokens.INT_DELIMITER) {
-      try {
-        [nextIndex, value] = decodeInt(index, data);
-      } catch {
-        throw new DecodeError("decodeList: error while int");
-      }
-    } else if (tokens.STR_DELIMITERS.includes(data[index])) {
-      try {
-        [nextIndex, value] = decodeString(index, data);
-      } catch {
-        throw new DecodeError("decodeList: error while decoding string");
-      }
-    } else if (data[index] === tokens.LIST_DELIMITER) {
-      try {
-        [nextIndex, value] = decodeList(index, data);
-      } catch {
-        throw new DecodeError("decodeList: error decoding list");
-      }
-    } else if (data[index] === tokens.DICT_DELIMITER) {
-      try {
-        [nextIndex, value] = decodeDict(index, data);
-      } catch {
-        throw new DecodeError("decodeList: error decoding dict");
-      }
-    } else {
-      throw new DecodeError("decodeList: invalid value");
-    }
+    const [nextIndex, value] = decodeMap(data, index);
 
     result.push(value);
     index = nextIndex;
@@ -143,6 +156,7 @@ function decodeList(index: number, data: Uint8Array): any[] {
  *
  * @private
  * @function decodeDict
+ * @throws DecodeError
  * @param {number} index - The starting index.
  * @param {Uint8Array} data - The data to decode.
  * @return {[number, *]} The array containing the next starting index and the
@@ -154,7 +168,9 @@ function decodeDict(index: number, data: Uint8Array): [number, any] {
   const result: any = {};
 
   while (index < data.length && data[index] !== tokens.END_DELIMITER) {
-    let nextIndex, value, rawKey, key;
+    let nextIndex: number, value: number;
+    let rawKey: Uint8Array;
+    let key: string;
 
     try {
       [nextIndex, rawKey] = decodeString(index, data);
@@ -164,33 +180,7 @@ function decodeDict(index: number, data: Uint8Array): [number, any] {
     }
     index = nextIndex;
 
-    if (data[index] === tokens.INT_DELIMITER) {
-      try {
-        [nextIndex, value] = decodeInt(index, data);
-      } catch {
-        throw new DecodeError("decodeDict: error decoding int");
-      }
-    } else if (tokens.STR_DELIMITERS.includes(data[index])) {
-      try {
-        [nextIndex, value] = decodeString(index, data);
-      } catch {
-        throw new DecodeError("decodeDict: error decoding string");
-      }
-    } else if (data[index] === tokens.LIST_DELIMITER) {
-      try {
-        [nextIndex, value] = decodeList(index, data);
-      } catch {
-        throw new DecodeError("decodeDict: decoding list");
-      }
-    } else if (data[index] === tokens.DICT_DELIMITER) {
-      try {
-        [nextIndex, value] = decodeDict(index, data);
-      } catch {
-        throw new DecodeError("decodeDict: error decoding dict");
-      }
-    } else {
-      throw new DecodeError("decodeDict: invalid value");
-    }
+    [nextIndex, value] = decodeMap(data, index);
 
     result[key] = value;
     index = nextIndex;
@@ -208,6 +198,7 @@ function decodeDict(index: number, data: Uint8Array): [number, any] {
  *
  * @public
  * @function decode
+ * @throws DecodeError
  * @param {Uint8Array} data - The bencoded data.
  * @return {*} The javascript object obtained by decoding the data.
  */
@@ -216,35 +207,7 @@ function decode(data: Uint8Array): any {
   let index = 0;
 
   while (index < data.length) {
-    let nextIndex, value;
-
-    if (data[index] === tokens.INT_DELIMITER) {
-      try {
-        [nextIndex, value] = decodeInt(index, data);
-      } catch {
-        throw new DecodeError("decode: error decoding int");
-      }
-    } else if (tokens.STR_DELIMITERS.includes(data[index])) {
-      try {
-        [nextIndex, value] = decodeString(index, data);
-      } catch {
-        throw new DecodeError("decode: error decoding string");
-      }
-    } else if (data[index] === tokens.LIST_DELIMITER) {
-      try {
-        [nextIndex, value] = decodeList(index, data);
-      } catch {
-        throw new DecodeError("decode: error decoding list");
-      }
-    } else if (data[index] === tokens.DICT_DELIMITER) {
-      try {
-        [nextIndex, value] = decodeDict(index, data);
-      } catch {
-        throw new DecodeError("decode: error decoding dict");
-      }
-    } else {
-      throw new DecodeError("decode: invalid value");
-    }
+    const [nextIndex, value] = decodeMap(data, index);
 
     result.push(value);
     index = nextIndex;
