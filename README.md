@@ -4,7 +4,7 @@
 [![Test Coverage](https://api.codeclimate.com/v1/badges/8da79bb0c4b64da43ad4/test_coverage)](https://codeclimate.com/github/lmcontact/lib-bencode/test_coverage)
 [![Maintainability](https://api.codeclimate.com/v1/badges/8da79bb0c4b64da43ad4/maintainability)](https://codeclimate.com/github/lmcontact/lib-bencode/maintainability)
 
-Bencode library in TypeScriptb based on [specification](https://wiki.theory.org/index.php/BitTorrentSpecification#Bencoding).
+Bencode library in TypeScript based on [specification](https://wiki.theory.org/index.php/BitTorrentSpecification#Bencoding).
 
 It's not pre-compiled, made for use with webpack or to compile by yourself.
 
