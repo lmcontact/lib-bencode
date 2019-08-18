@@ -44,6 +44,34 @@ function decodeMap(data: Uint8Array, index: number): [number, any] {
 }
 
 /**
+ * Helper - Function returns true if the char at index is leading zero else returns false.
+ *
+ * @private
+ * @function isLeadingZero
+ * @return {boolean} True if it's a leading zero else false.
+ */
+function isLeadingZero(data: Uint8Array, index: number): boolean {
+  return (
+    data[index] === tokens.ZERO && data[index + 1] !== tokens.END_DELIMITER
+  );
+}
+
+/**
+ * Helper - Function returns true if the char at index is an invalid minus else returns false.
+ *
+ * @private
+ * @function isInvalidMinus
+ * @return {boolean} True if it's a invalid minus else false.
+ */
+function isInvalidMinus(data: Uint8Array, index: number): boolean {
+  return (
+    data[index] === tokens.MINUS &&
+    (data[index + 1] === "0".charCodeAt(0) ||
+      !tokens.STR_DELIMITERS.includes(data[index + 1]))
+  );
+}
+
+/**
  * Function returning an array containing the next starting index and the decoded int.
  *
  * @private
@@ -55,18 +83,12 @@ function decodeMap(data: Uint8Array, index: number): [number, any] {
  * decoded int.
  */
 function decodeInt(index: number, data: Uint8Array): [number, bigint] {
-  index++;
-
-  const endIndex = data.indexOf(tokens.END_DELIMITER, index);
+  const endIndex = data.indexOf(tokens.END_DELIMITER, ++index);
   let nb: bigint;
 
-  if (data[index] === tokens.ZERO && data[index + 1] !== tokens.END_DELIMITER) {
+  if (isLeadingZero(data, index)) {
     throw new DecodeError("decodeInt: leading zero");
-  } else if (
-    data[index] === tokens.MINUS &&
-    (data[index + 1] === "0".charCodeAt(0) ||
-      !tokens.STR_DELIMITERS.includes(data[index + 1]))
-  ) {
+  } else if (isInvalidMinus(data, index)) {
     throw new DecodeError("decodeInt: invalid value");
   }
 
@@ -121,10 +143,9 @@ function decodeString(index: number, data: Uint8Array): [number, Uint8Array] {
  * the decoded list.
  */
 function decodeList(index: number, data: Uint8Array): [number, any[]] {
-  index++;
-
   const result: any[] = [];
 
+  index++;
   while (index < data.length && data[index] !== tokens.END_DELIMITER) {
     const [nextIndex, value] = decodeMap(data, index);
 
