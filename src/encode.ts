@@ -38,6 +38,36 @@ function getType(elt: any): string {
 }
 
 /**
+ * Function encodeMap maps function to argument type.
+ *
+ * @private
+ * @function encodeMap
+ * @throws EncodeError
+ * @param {string} type - The type of the element.
+ * @param {any} elt - The element to encode.
+ * @return {Uint8Array} - The encoded element.
+ */
+function encodeMap(type: string, elt: any): Uint8Array {
+  let encodedElt: Uint8Array;
+
+  if (type === "dict") {
+    encodedElt = encodeDict(elt);
+  } else if (type === "list") {
+    encodedElt = encodeList(elt);
+  } else if (type === "rawstring") {
+    encodedElt = encodeString(elt);
+  } else if (type === "string") {
+    encodedElt = encodeString(new TextEncoder().encode(elt));
+  } else if (type === "bigint") {
+    encodedElt = encodeInt(elt);
+  } else {
+    throw new EncodeError(`encodeDict: wrong type ${type}`);
+  }
+
+  return encodedElt;
+}
+
+/**
  * Return a bencoded string given a javascript string.
  *
  * @private
@@ -73,29 +103,17 @@ function encodeInt(n: BigInt): Uint8Array {
  *
  * @private
  * @function encodeList
+ * @throws EncodeError
  * @param {*} list - The javascript array.
  * @return {string} The bencoded list.
  */
 function encodeList(list: any[]): Uint8Array {
   const result: Uint8Array[] = [];
-  const te = new TextEncoder();
 
   list.forEach(elt => {
     const type = getType(elt);
 
-    if (type === "list") {
-      result.push(encodeList(elt));
-    } else if (type === "dict") {
-      result.push(encodeDict(elt));
-    } else if (type === "bigint") {
-      result.push(encodeInt(elt));
-    } else if (type === "rawstring") {
-      result.push(encodeString(elt));
-    } else if (type === "string") {
-      result.push(encodeString(te.encode(elt)));
-    } else {
-      throw new EncodeError(`encodeList: wrong type ${type}`);
-    }
+    result.push(encodeMap(type, elt));
   });
 
   const bufLen = result.length
@@ -120,6 +138,7 @@ function encodeList(list: any[]): Uint8Array {
  *
  * @private
  * @function encodeDict
+ * @throws EncodeError
  * @param {*} dict - The javascript object.
  * @return {string} The bencoded dict.
  */
@@ -134,19 +153,7 @@ function encodeDict(dict: any): Uint8Array {
     const type = getType(dict[k]);
 
     result.push(te.encode(`${k.length}:${k}`));
-    if (type === "dict") {
-      result.push(encodeDict(dict[k]));
-    } else if (type === "list") {
-      result.push(encodeList(dict[k]));
-    } else if (type === "rawstring") {
-      result.push(encodeString(dict[k]));
-    } else if (type === "string") {
-      result.push(encodeString(te.encode(dict[k])));
-    } else if (type === "bigint") {
-      result.push(encodeInt(dict[k]));
-    } else {
-      throw new EncodeError(`encodeDict: wrong type ${type}`);
-    }
+    result.push(encodeMap(type, dict[k]));
   }
 
   const bufLen = result.length
@@ -177,19 +184,7 @@ function encodeDict(dict: any): Uint8Array {
 function encode(elt: any): Uint8Array {
   const type = getType(elt);
 
-  if (type === "dict") {
-    return encodeDict(elt);
-  } else if (type === "list") {
-    return encodeList(elt);
-  } else if (type === "bigint") {
-    return encodeInt(elt);
-  } else if (type === "rawstring") {
-    return encodeString(elt);
-  } else if (type === "string") {
-    return encodeString(new TextEncoder().encode(elt));
-  } else {
-    throw new EncodeError(`encodeDict: wrong type ${type}`);
-  }
+  return encodeMap(type, elt);
 }
 
 export {
