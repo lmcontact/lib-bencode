@@ -30,15 +30,11 @@ function getType(elt: any): string {
 
   if (elt && elt.buffer) {
     type = "rawstring";
-  } else if (type === "object" && elt === null) {
-    type = "null";
-  } else if (type === "object" && elt instanceof Array) {
-    type = "list";
   } else if (type === "object") {
-    type = "dict";
+    type = elt instanceof Array ? "list" : "dict";
   }
 
-  return type;
+  return elt === null ? "null" : type;
 }
 
 /**
