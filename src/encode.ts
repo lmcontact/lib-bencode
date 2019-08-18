@@ -31,10 +31,14 @@ function getType(elt: any): string {
   if (elt && elt.buffer) {
     return "rawstring";
   } else if (type === "object") {
-    return elt === null ? "null" : elt instanceof Array ? "list" : "dict";
-  } else {
-    return type;
+    if (elt === null) {
+      return "null";
+    } else {
+      return elt instanceof Array ? "list" : "dict";
+    }
   }
+
+  return type;
 }
 
 /**
@@ -99,6 +103,33 @@ function encodeInt(n: BigInt): Uint8Array {
 }
 
 /**
+ * Helper - Function returns a buf containing concataned Uint8Arrays.
+ *
+ * @private
+ * @function concatBufs
+ * @param {Uint8Array[]} elt - The Uint8Arrays to concat.
+ * @param {string} del - A start delimiter.
+ * @return {} - The converted list or dict to buf.
+ */
+function concatBufs(bufs: Uint8Array[], del: number): Uint8Array {
+  const bufLen = bufs.length
+    ? bufs.map(elt => elt.length).reduce((a, b) => a + b)
+    : 0;
+  const buf = new Uint8Array(new ArrayBuffer(bufLen + 2));
+  let index = 0;
+
+  buf.set([del], index);
+  index++;
+  for (let elt of bufs) {
+    buf.set(elt, index);
+    index += elt.length;
+  }
+  buf.set([tokens.END_DELIMITER], index);
+
+  return buf;
+}
+
+/**
  * Return a bencoded list given a javascript array.
  *
  * @private
@@ -116,21 +147,7 @@ function encodeList(list: any[]): Uint8Array {
     result.push(encodeMap(type, elt));
   });
 
-  const bufLen = result.length
-    ? result.map(elt => elt.length).reduce((a, b) => a + b)
-    : 0;
-  const buf = new Uint8Array(new ArrayBuffer(bufLen + 2));
-  let index = 0;
-
-  buf.set([tokens.LIST_DELIMITER], index);
-  index++;
-  for (let elt of result) {
-    buf.set(elt, index);
-    index += elt.length;
-  }
-  buf.set([tokens.END_DELIMITER], index);
-
-  return buf;
+  return concatBufs(result, tokens.LIST_DELIMITER);
 }
 
 /**
@@ -156,21 +173,7 @@ function encodeDict(dict: any): Uint8Array {
     result.push(encodeMap(type, dict[k]));
   }
 
-  const bufLen = result.length
-    ? result.map(elt => elt.length).reduce((a, b) => a + b)
-    : 0;
-  const buf = new Uint8Array(new ArrayBuffer(bufLen + 2));
-  let index = 0;
-
-  buf.set([tokens.DICT_DELIMITER], index);
-  index++;
-  for (let elt of result) {
-    buf.set(elt, index);
-    index += elt.length;
-  }
-  buf.set([tokens.END_DELIMITER], index);
-
-  return buf;
+  return concatBufs(result, tokens.DICT_DELIMITER);
 }
 
 /**
