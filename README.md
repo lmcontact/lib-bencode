@@ -6,10 +6,6 @@
 
 Bencode library in TypeScriptb based on [specification](https://wiki.theory.org/index.php/BitTorrentSpecification#Bencoding).
 
-It's not pre-compiled, made for use with webpack or to compile by yourself.
-
-Require ES6 support for BigInt.
-
 ## Testing
 
 ```bash
